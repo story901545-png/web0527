@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資訊研究社 ✦ Info Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FFB3C6;
+    --pink-deep: #FF6B9D;
+    --mint: #B5EAD7;
+    --mint-deep: #4DC8A0;
+    --lavender: #C7B8EA;
+    --lavender-deep: #8B6FD4;
+    --peach: #FFCBA4;
+    --peach-deep: #FF8C5A;
+    --sky: #AED9E0;
+    --sky-deep: #5BB8C5;
+    --yellow: #FFF3B0;
+    --yellow-deep: #F0C040;
+    --cream: #FFF8F0;
+    --white: #FFFFFF;
+    --dark: #3D2C2C;
+    --mid: #6B5050;
+    --light-text: #9B8080;
+    --card-shadow: 0 8px 32px rgba(180, 130, 130, 0.15);
+    --btn-shadow: 0 4px 16px rgba(180, 100, 120, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='5' fill='%23FFB3C6' stroke='%23FF6B9D' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto;
+  }
+
+  /* ===== FLOATING PIXEL CREATURES (decorative) ===== */
+  .creatures-layer {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .pixel-creature {
+    position: absolute;
+    animation: floatBob linear infinite;
+    opacity: 0.55;
+  }
+  @keyframes floatBob {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-18px) rotate(5deg); }
+    50% { transform: translateY(-8px) rotate(-3deg); }
+    75% { transform: translateY(-22px) rotate(4deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  /* ===== SCROLLING STARS ===== */
+  .star-trail { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 3px solid var(--pink);
+    padding: 0.75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 20px rgba(255,180,198,0.3);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.4rem; font-weight: 900; color: var(--lavender-deep);
+    text-decoration: none; letter-spacing: -0.5px;
+  }
+  .nav-logo .logo-icon {
+    width: 42px; height: 42px;
+    background: var(--lavender);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .nav-links { display: flex; gap: 0.5rem; }
+  .nav-btn {
+    padding: 0.45rem 1rem;
+    border-radius: 50px;
+    border: 2.5px solid transparent;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent; color: var(--dark);
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--lavender); border-color: var(--lavender-deep);
+    transform: translateY(-2px);
+  }
+  .nav-btn.game-btn {
+    background: linear-gradient(135deg, var(--pink) 0%, var(--peach) 100%);
+    border-color: var(--pink-deep); color: var(--dark);
+    box-shadow: var(--btn-shadow);
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 4px 16px rgba(255,107,157,0.3); }
+    50% { box-shadow: 0 4px 28px rgba(255,107,157,0.55); }
+  }
+
+  /* ===== PAGE SECTIONS ===== */
+  .page { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .page.active { display: block; }
+
+  /* ===== HERO SECTION ===== */
+  #home {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 4rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 30%, rgba(199,184,234,0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 350px at 80% 70%, rgba(255,179,198,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 50% 90%, rgba(181,234,215,0.3) 0%, transparent 70%);
+  }
+  .hero-content { text-align: center; position: relative; z-index: 2; max-width: 700px; }
+  .hero-badge {
+    display: inline-block;
+    background: var(--lavender); color: var(--lavender-deep);
+    border-radius: 50px; padding: 0.4rem 1.2rem;
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 1.5rem;
+    border: 2px solid var(--lavender-deep);
+    animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes badgePop {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .hero-title {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 900; line-height: 1.1;
+    color: var(--dark);
+    animation: titleSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  }
+  .hero-title .accent { color: var(--lavender-deep); }
+  .hero-title .accent2 { color: var(--pink-deep); }
+  @keyframes titleSlide {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-sub {
+    margin-top: 1rem; font-size: 1.1rem; color: var(--mid);
+    animation: titleSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+  }
+  .hero-buttons {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 2.5rem;
+    animation: titleSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+  }
+  .btn-primary {
+    padding: 0.85rem 2rem; border-radius: 50px;
+    background: linear-gradient(135deg, var(--lavender-deep), var(--pink-deep));
+    color: white; font-weight: 800; font-size: 1rem;
+    border: none; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(139,111,212,0.4);
+    transition: all 0.25s ease;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(139,111,212,0.5); }
+  .btn-secondary {
+    padding: 0.85rem 2rem; border-radius: 50px;
+    background: white; color: var(--lavender-deep);
+    font-weight: 800; font-size: 1rem;
+    border: 3px solid var(--lavender); cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .btn-secondary:hover { background: var(--lavender); transform: translateY(-3px); }
+
+  .hero-mascot {
+    margin-top: 3rem;
+    animation: titleSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s both;
+  }
+
+  /* Feature cards on home */
+  .feature-strip {
+    display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 3rem; position: relative; z-index: 2;
+    animation: titleSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 1s both;
+  }
+  .feat-card {
+    background: white; border-radius: 20px;
+    padding: 1.5rem 1.8rem; text-align: center;
+    border: 3px solid transparent; cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--card-shadow);
+    min-width: 150px;
+  }
+  .feat-card:hover { transform: translateY(-8px) scale(1.04); }
+  .feat-card.pink { border-color: var(--pink-deep); }
+  .feat-card.mint { border-color: var(--mint-deep); }
+  .feat-card.lavender { border-color: var(--lavender-deep); }
+  .feat-card.peach { border-color: var(--peach-deep); }
+  .feat-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .feat-label { font-weight: 800; font-size: 0.95rem; color: var(--dark); }
+  .feat-sub { font-size: 0.78rem; color: var(--light-text); margin-top: 2px; }
+
+  /* ===== SECTION COMMON ===== */
+  .section-page { padding: 3rem 2rem 5rem; max-width: 1100px; margin: 0 auto; }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .section-badge {
+    display: inline-block;
+    border-radius: 50px; padding: 0.35rem 1rem;
+    font-size: 0.82rem; font-weight: 700; margin-bottom: 0.8rem;
+    border: 2px solid;
+  }
+  .section-title { font-size: 2.2rem; font-weight: 900; color: var(--dark); }
+  .section-sub { font-size: 1rem; color: var(--mid); margin-top: 0.5rem; }
+
+  /* ===== MEMBERS PAGE ===== */
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  .member-card {
+    background: white; border-radius: 24px;
+    padding: 2rem 1.5rem; text-align: center;
+    border: 3px solid transparent;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+  .member-card:hover { transform: translateY(-8px) scale(1.03); }
+  .member-avatar {
+    width: 90px; height: 90px; border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    position: relative;
+  }
+  .member-avatar::after {
+    content: '';
+    position: absolute; inset: -5px;
+    border-radius: 50%; border: 3px dashed;
+    animation: spinSlow 8s linear infinite;
+  }
+  @keyframes spinSlow { to { transform: rotate(360deg); } }
+  .member-name { font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 0.3rem; }
+  .member-role {
+    display: inline-block;
+    border-radius: 50px; padding: 0.2rem 0.8rem;
+    font-size: 0.78rem; font-weight: 700; margin-bottom: 0.8rem;
+  }
+  .member-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.8rem; }
+  .skill-tag {
+    background: var(--cream); border-radius: 8px;
+    padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600; color: var(--mid);
+    border: 1.5px solid rgba(0,0,0,0.08);
+  }
+  .member-bio { font-size: 0.85rem; color: var(--light-text); margin-top: 0.5rem; line-height: 1.5; }
+
+  /* ===== COURSES PAGE ===== */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .course-card {
+    background: white; border-radius: 24px;
+    overflow: hidden; border: 3px solid transparent;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+  .course-card:hover { transform: translateY(-8px); }
+  .course-cover {
+    height: 140px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem; position: relative; overflow: hidden;
+  }
+  .course-cover::before {
+    content: ''; position: absolute; inset: 0;
+    opacity: 0.15;
+    background: repeating-linear-gradient(45deg, white 0px, white 4px, transparent 4px, transparent 12px);
+  }
+  .course-body { padding: 1.3rem 1.5rem; }
+  .course-level {
+    display: inline-block; border-radius: 50px;
+    padding: 0.15rem 0.7rem; font-size: 0.72rem; font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  .course-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 0.4rem; }
+  .course-desc { font-size: 0.85rem; color: var(--light-text); line-height: 1.5; }
+  .course-meta {
+    display: flex; gap: 1rem; margin-top: 0.8rem;
+    font-size: 0.8rem; color: var(--mid); font-weight: 600;
+  }
+
+  /* ===== WORKS PAGE ===== */
+  .works-filter {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center;
+  }
+  .filter-btn {
+    padding: 0.4rem 1rem; border-radius: 50px;
+    border: 2px solid var(--lavender); background: white;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--lavender); color: var(--lavender-deep);
+  }
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .work-card {
+    background: white; border-radius: 20px;
+    overflow: hidden; box-shadow: var(--card-shadow);
+    border: 3px solid transparent;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+  .work-card:hover { transform: translateY(-6px) scale(1.02); }
+  .work-preview {
+    height: 160px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; position: relative;
+  }
+  .work-preview .work-pixel { position: absolute; bottom: 10px; right: 12px; font-size: 1.2rem; }
+  .work-info { padding: 1rem 1.2rem; }
+  .work-tag {
+    display: inline-block; border-radius: 50px;
+    padding: 0.15rem 0.6rem; font-size: 0.72rem; font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .work-title { font-weight: 800; color: var(--dark); font-size: 1rem; margin-bottom: 0.2rem; }
+  .work-author { font-size: 0.82rem; color: var(--light-text); }
+  .work-stars { color: var(--yellow-deep); font-size: 0.85rem; margin-top: 0.4rem; }
+
+  /* ===== GAME / QUIZ PAGE ===== */
+  #game { background: var(--cream); }
+  .quiz-container {
+    max-width: 680px; margin: 0 auto;
+    padding: 2rem;
+  }
+  .quiz-start {
+    text-align: center; padding: 2rem 1rem;
+  }
+  .quiz-mascot { font-size: 5rem; margin-bottom: 1rem; animation: floatBob 3s ease-in-out infinite; }
+  .quiz-start-title { font-size: 1.8rem; font-weight: 900; color: var(--dark); margin-bottom: 0.8rem; }
+  .quiz-start-desc { color: var(--mid); line-height: 1.6; margin-bottom: 2rem; font-size: 0.95rem; }
+
+  .quiz-card {
+    background: white; border-radius: 28px;
+    padding: 2.5rem; box-shadow: var(--card-shadow);
+    border: 3px solid var(--lavender);
+    display: none;
+  }
+  .quiz-card.active { display: block; animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .quiz-progress-bar {
+    width: 100%; height: 8px;
+    background: var(--lavender); border-radius: 50px; margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--lavender-deep), var(--pink-deep));
+    border-radius: 50px; transition: width 0.5s ease;
+  }
+  .quiz-q-num { font-size: 0.82rem; color: var(--light-text); font-weight: 700; margin-bottom: 0.5rem; }
+  .quiz-q-text { font-size: 1.2rem; font-weight: 800; color: var(--dark); margin-bottom: 1.8rem; line-height: 1.5; }
+  .quiz-options { display: grid; gap: 0.8rem; }
+  .quiz-option {
+    padding: 1rem 1.2rem;
+    border-radius: 16px; border: 2.5px solid var(--lavender);
+    background: white; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.95rem; font-weight: 600; color: var(--dark);
+    text-align: left; transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .quiz-option .opt-emoji { font-size: 1.3rem; min-width: 24px; }
+  .quiz-option:hover { background: var(--lavender); border-color: var(--lavender-deep); transform: translateX(4px); }
+  .quiz-option.selected { background: var(--lavender); border-color: var(--lavender-deep); }
+
+  /* Result card */
+  .result-card {
+    background: white; border-radius: 28px;
+    padding: 2.5rem; box-shadow: var(--card-shadow);
+    text-align: center; display: none;
+  }
+  .result-card.active { display: block; animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .result-type-icon { font-size: 5rem; margin-bottom: 1rem; }
+  .result-badge {
+    display: inline-block;
+    border-radius: 50px; padding: 0.4rem 1.2rem;
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem;
+    border: 2px solid;
+  }
+  .result-title { font-size: 1.8rem; font-weight: 900; color: var(--dark); margin-bottom: 0.5rem; }
+  .result-subtitle { font-size: 1rem; color: var(--lavender-deep); font-weight: 700; margin-bottom: 1rem; }
+  .result-desc { color: var(--mid); line-height: 1.7; font-size: 0.95rem; max-width: 480px; margin: 0 auto 1.5rem; }
+  .result-tips { background: var(--cream); border-radius: 16px; padding: 1.2rem; text-align: left; margin-bottom: 1.5rem; }
+  .result-tips h4 { font-weight: 800; color: var(--dark); margin-bottom: 0.7rem; font-size: 0.95rem; }
+  .result-tips li { font-size: 0.88rem; color: var(--mid); margin-left: 1.2rem; margin-bottom: 0.4rem; line-height: 1.5; }
+  .result-courses { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+  .result-course-tag {
+    background: var(--lavender); color: var(--lavender-deep);
+    border-radius: 50px; padding: 0.3rem 0.9rem;
+    font-size: 0.82rem; font-weight: 700; border: 2px solid var(--lavender-deep);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: white; border-top: 3px solid var(--lavender);
+    padding: 2rem; text-align: center;
+    position: relative; z-index: 1;
+  }
+  .footer-logo { font-size: 1.2rem; font-weight: 900; color: var(--lavender-deep); margin-bottom: 0.5rem; }
+  .footer-text { font-size: 0.82rem; color: var(--light-text); }
+  .footer-icons { display: flex; gap: 0.8rem; justify-content: center; margin: 0.8rem 0; font-size: 1.3rem; }
+
+  /* ===== SCROLL TOP ===== */
+  .scroll-top {
+    position: fixed; bottom: 2rem; right: 2rem;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--lavender-deep), var(--pink-deep));
+    border: none; cursor: pointer; font-size: 1.2rem;
+    box-shadow: 0 4px 16px rgba(139,111,212,0.4);
+    z-index: 200; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scroll-top:hover { transform: translateY(-3px) scale(1.1); }
+
+  /* ===== PIXEL CREATURES SVG inline ===== */
+  .pixel-svg { width: 48px; height: 48px; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .nav-links { gap: 0.3rem; }
+    .nav-btn { padding: 0.35rem 0.7rem; font-size: 0.82rem; }
+    .hero-title { font-size: 2.4rem; }
+    .feature-strip { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating decorative creatures -->
+<div class="creatures-layer" id="creaturesLayer"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <div class="logo-icon">💾</div>
+    資訊研究社
+  </a>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="showPage('members')">👾 成員介紹</button>
+    <button class="nav-btn" onclick="showPage('courses')">📚 主題課程</button>
+    <button class="nav-btn" onclick="showPage('works')">✨ 學生作品</button>
+    <button class="nav-btn game-btn" onclick="showPage('game')">🎮 學習類型測驗</button>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="home" class="page active">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">✦ 歡迎來到資訊研究社 ✦</div>
+    <h1 class="hero-title">
+      探索<span class="accent">程式</span>的<br>無限<span class="accent2">可能</span>！
+    </h1>
+    <p class="hero-sub">和我們一起在像素世界裡冒險，學習程式、創作作品、發現自己的學習超能力 🚀</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="showPage('game')">🎮 測測我的學習類型</button>
+      <button class="btn-secondary" onclick="showPage('members')">認識我們 →</button>
+    </div>
+
+    <!-- Inline hero mascot SVG -->
+    <div class="hero-mascot">
+      <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Creature 1: Pink blob -->
+        <rect x="30" y="60" width="60" height="70" rx="30" fill="#FFB3C6" stroke="#FF6B9D" stroke-width="3"/>
+        <rect x="42" y="78" width="12" height="14" rx="6" fill="white"/>
+        <rect x="66" y="78" width="12" height="14" rx="6" fill="white"/>
+        <rect x="45" y="82" width="6" height="8" rx="3" fill="#FF6B9D"/>
+        <rect x="69" y="82" width="6" height="8" rx="3" fill="#FF6B9D"/>
+        <path d="M48 102 Q60 112 72 102" stroke="#FF6B9D" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <!-- antennae -->
+        <line x1="48" y1="62" x2="42" y2="46" stroke="#FF6B9D" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="42" cy="44" r="4" fill="#FFCBA4"/>
+        <line x1="72" y1="62" x2="78" y2="46" stroke="#FF6B9D" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="78" cy="44" r="4" fill="#C7B8EA"/>
+        <!-- arms -->
+        <rect x="12" y="85" width="22" height="10" rx="5" fill="#FFB3C6" stroke="#FF6B9D" stroke-width="2"/>
+        <rect x="86" y="85" width="22" height="10" rx="5" fill="#FFB3C6" stroke="#FF6B9D" stroke-width="2"/>
+
+        <!-- Creature 2: Mint square dude -->
+        <rect x="130" y="50" width="60" height="65" rx="20" fill="#B5EAD7" stroke="#4DC8A0" stroke-width="3"/>
+        <rect x="142" y="66" width="14" height="16" rx="7" fill="white"/>
+        <rect x="164" y="66" width="14" height="16" rx="7" fill="white"/>
+        <rect x="146" y="70" width="7" height="9" rx="4" fill="#4DC8A0"/>
+        <rect x="168" y="70" width="7" height="9" rx="4" fill="#4DC8A0"/>
+        <rect x="148" y="90" width="24" height="5" rx="3" fill="#4DC8A0"/>
+        <!-- hat -->
+        <rect x="138" y="34" width="44" height="20" rx="8" fill="#AED9E0" stroke="#5BB8C5" stroke-width="2.5"/>
+        <rect x="130" y="50" width="60" height="8" rx="4" fill="#5BB8C5"/>
+        <!-- legs -->
+        <rect x="140" y="112" width="14" height="22" rx="7" fill="#B5EAD7" stroke="#4DC8A0" stroke-width="2"/>
+        <rect x="166" y="112" width="14" height="22" rx="7" fill="#B5EAD7" stroke="#4DC8A0" stroke-width="2"/>
+
+        <!-- Creature 3: Lavender star blob -->
+        <ellipse cx="255" cy="90" rx="35" ry="40" fill="#C7B8EA" stroke="#8B6FD4" stroke-width="3"/>
+        <rect x="238" y="76" width="12" height="14" rx="6" fill="white"/>
+        <rect x="258" y="76" width="12" height="14" rx="6" fill="white"/>
+        <rect x="241" y="80" width="6" height="8" rx="3" fill="#8B6FD4"/>
+        <rect x="261" y="80" width="6" height="8" rx="3" fill="#8B6FD4"/>
+        <path d="M244 102 Q255 110 266 102" stroke="#8B6FD4" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <!-- star crown -->
+        <polygon points="255,42 260,55 274,55 263,63 267,76 255,68 243,76 247,63 236,55 250,55" fill="#FFF3B0" stroke="#F0C040" stroke-width="2"/>
+        <!-- sparkles around -->
+        <text x="290" y="55" font-size="16" fill="#F0C040">✦</text>
+        <text x="12" y="50" font-size="12" fill="#FF6B9D">✦</text>
+        <text x="108" y="140" font-size="14" fill="#4DC8A0">✦</text>
+        <text x="200" y="145" font-size="10" fill="#8B6FD4">✦</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Feature cards -->
+  <div class="feature-strip">
+    <div class="feat-card pink" onclick="showPage('members')">
+      <div class="feat-icon">👾</div>
+      <div class="feat-label">成員介紹</div>
+      <div class="feat-sub">認識我們的夥伴</div>
+    </div>
+    <div class="feat-card mint" onclick="showPage('courses')">
+      <div class="feat-icon">💻</div>
+      <div class="feat-label">主題課程</div>
+      <div class="feat-sub">從基礎到進階</div>
+    </div>
+    <div class="feat-card lavender" onclick="showPage('works')">
+      <div class="feat-icon">🎨</div>
+      <div class="feat-label">學生作品</div>
+      <div class="feat-sub">看看大家的創作</div>
+    </div>
+    <div class="feat-card peach" onclick="showPage('game')">
+      <div class="feat-icon">🎮</div>
+      <div class="feat-label">學習測驗</div>
+      <div class="feat-sub">找到你的學習法</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MEMBERS PAGE ===== -->
+<div id="members" class="page">
+  <div class="section-page">
+    <div class="section-header">
+      <div class="section-badge" style="background:var(--pink);color:var(--pink-deep);border-color:var(--pink-deep);">👾 成員介紹</div>
+      <h2 class="section-title">來認識我們吧！</h2>
+      <p class="section-sub">每個人都有自己的超能力，我們一起組成最強的像素小隊 ✦</p>
+    </div>
+    <div class="members-grid" id="membersGrid"></div>
+  </div>
+</div>
+
+<!-- ===== COURSES PAGE ===== -->
+<div id="courses" class="page">
+  <div class="section-page">
+    <div class="section-header">
+      <div class="section-badge" style="background:var(--mint);color:var(--mint-deep);border-color:var(--mint-deep);">📚 主題課程</div>
+      <h2 class="section-title">探索課程地圖</h2>
+      <p class="section-sub">不管你是哪種學習者，這裡都有適合你的課程！</p>
+    </div>
+    <div class="courses-grid" id="coursesGrid"></div>
+  </div>
+</div>
+
+<!-- ===== WORKS PAGE ===== -->
+<div id="works" class="page">
+  <div class="section-page">
+    <div class="section-header">
+      <div class="section-badge" style="background:var(--lavender);color:var(--lavender-deep);border-color:var(--lavender-deep);">✨ 學生作品</div>
+      <h2 class="section-title">創作展示廳</h2>
+      <p class="section-sub">看看社員們的驚人創作！每一個作品都藏著無數小時的努力 💪</p>
+    </div>
+    <div class="works-filter" id="worksFilter"></div>
+    <div class="works-grid" id="worksGrid"></div>
+  </div>
+</div>
+
+<!-- ===== GAME PAGE ===== -->
+<div id="game" class="page">
+  <div class="section-page" style="max-width:680px;">
+    <div class="section-header">
+      <div class="section-badge" style="background:var(--peach);color:var(--peach-deep);border-color:var(--peach-deep);">🎮 學習類型測驗</div>
+      <h2 class="section-title">找到你的學習超能力！</h2>
+      <p class="section-sub">8 道題目，告訴你最適合哪種學資訊的方式</p>
+    </div>
+
+    <div class="quiz-container">
+      <!-- Start screen -->
+      <div class="quiz-start" id="quizStart">
+        <div class="quiz-mascot">🧙‍♀️</div>
+        <div class="quiz-start-title">嗨！我是學習魔法師</div>
+        <p class="quiz-start-desc">
+          每個人學資訊的方式都不一樣！<br>
+          透過這個測驗，我會幫你發現你是哪種類型的學習者，<br>
+          然後推薦最適合你的學習路線 ✨<br><br>
+          總共 8 道題目，大約 3 分鐘完成！
+        </p>
+        <button class="btn-primary" onclick="startQuiz()" style="font-size:1.1rem;padding:1rem 2.5rem;">開始測驗！🚀</button>
+      </div>
+
+      <!-- Quiz questions -->
+      <div id="quizArea"></div>
+
+      <!-- Result -->
+      <div class="result-card" id="resultCard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">💾 資訊研究社</div>
+  <div class="footer-icons">🌸 🌿 ⭐ 🎮 💻 🎨</div>
+  <div class="footer-text">讓我們一起在程式的世界裡探險 ✦ 歡迎加入我們！</div>
+</footer>
+
+<!-- Scroll top -->
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ========================
+// DATA
+// ========================
+const members = [
+  { name: '林小宇', role: '社長', emoji: '🦁', color: '#FFB3C6', roleColor: '#FF6B9D', skills: ['Python', '網站設計', '專案管理'], bio: '熱愛寫程式，夢想做出能讓世界更好的軟體！' },
+  { name: '陳曉薇', role: '副社長', emoji: '🦊', color: '#B5EAD7', roleColor: '#4DC8A0', skills: ['JavaScript', 'UI設計', 'React'], bio: '覺得設計和程式缺一不可，喜歡把想法變成畫面。' },
+  { name: '王柏翰', role: '技術長', emoji: '🐨', color: '#C7B8EA', roleColor: '#8B6FD4', skills: ['C++', '演算法', 'Git'], bio: '演算法狂熱者，最喜歡解 LeetCode 難題！' },
+  { name: '黃芸萱', role: '活動長', emoji: '🦋', color: '#FFCBA4', roleColor: '#FF8C5A', skills: ['行銷', 'Canva', '企劃'], bio: '負責讓社團活動超級有趣，讓大家都喜歡來！' },
+  { name: '李思妤', role: '美編長', emoji: '🌸', color: '#AED9E0', roleColor: '#5BB8C5', skills: ['Figma', 'Illustrator', 'CSS'], bio: '相信好的設計可以讓程式更有生命力。' },
+  { name: '張俊豪', role: '程式長', emoji: '🐉', color: '#FFF3B0', roleColor: '#F0C040', skills: ['Java', 'Android', '後端'], bio: '夢想做出自己的 App，目前努力學習中！' },
+  { name: '吳品儀', role: '社員', emoji: '🐱', color: '#FFB3C6', roleColor: '#FF6B9D', skills: ['Scratch', 'Python入門', '網頁'], bio: '剛加入的新成員，超級有熱情！最喜歡 Python。' },
+  { name: '劉承翰', role: '社員', emoji: '🦝', color: '#B5EAD7', roleColor: '#4DC8A0', skills: ['遊戲設計', 'Unity', 'C#'], bio: '立志做出屬於自己的遊戲，每天都在學習中。' },
+];
+
+const courses = [
+  { emoji: '🐣', title: 'Python 入門：從零開始', level: '初階', levelColor: '#B5EAD7', levelText: '#4DC8A0', bg: '#B5EAD7', desc: '用可愛的例子學 Python！適合完全沒有程式基礎的同學，一起用程式解決生活問題。', weeks: '8 週', sessions: '16 堂' },
+  { emoji: '🌐', title: '網頁設計：HTML/CSS/JS', level: '初階', levelColor: '#AED9E0', levelText: '#5BB8C5', bg: '#AED9E0', desc: '從 HTML 開始，打造你的第一個個人網站！學會讓網頁動起來的基本技術。', weeks: '10 週', sessions: '20 堂' },
+  { emoji: '🎨', title: 'UI/UX 設計思維', level: '初階', levelColor: '#FFCBA4', levelText: '#FF8C5A', bg: '#FFCBA4', desc: '用 Figma 學設計！了解使用者體驗，做出好看又好用的介面設計。', weeks: '6 週', sessions: '12 堂' },
+  { emoji: '🧩', title: '資料結構與演算法', level: '中階', levelColor: '#C7B8EA', levelText: '#8B6FD4', bg: '#C7B8EA', desc: '打好程式基礎！學習排序、搜尋、樹狀結構等重要觀念，為競賽做準備。', weeks: '12 週', sessions: '24 堂' },
+  { emoji: '⚡', title: 'React 前端開發', level: '中階', levelColor: '#FFB3C6', levelText: '#FF6B9D', bg: '#FFB3C6', desc: '現代網頁開發框架！學會用 React 建立互動式網頁應用程式。', weeks: '10 週', sessions: '20 堂' },
+  { emoji: '🎮', title: 'Unity 遊戲開發', level: '中階', levelColor: '#FFF3B0', levelText: '#D4A017', bg: '#FFF3B0', desc: '用 Unity + C# 做出你的第一款遊戲！從 2D 平台遊戲開始，一步一步學習。', weeks: '14 週', sessions: '28 堂' },
+  { emoji: '🤖', title: 'Python 資料分析', level: '進階', levelColor: '#B5EAD7', levelText: '#0D8060', bg: '#B5EAD7', desc: '用 Pandas、Matplotlib 分析真實資料！學會視覺化呈現，讓數據說故事。', weeks: '8 週', sessions: '16 堂' },
+  { emoji: '🧠', title: 'AI 入門：機器學習概念', level: '進階', levelColor: '#C7B8EA', levelText: '#5D3FB5', bg: '#C7B8EA', desc: '探索人工智慧的世界！學習基本的機器學習概念和應用，動手做 AI 專題。', weeks: '10 週', sessions: '20 堂' },
+];
+
+const workCategories = ['全部', '網頁設計', '遊戲', 'Python', '資料視覺化', 'App'];
+const works = [
+  { emoji: '🌈', title: '彩虹像素藝術生成器', author: '陳曉薇', category: '網頁設計', tags: ['JavaScript', 'Canvas'], bg: '#FFB3C6', stars: 5 },
+  { emoji: '🐍', title: '貪食蛇：像素版', author: '王柏翰', category: '遊戲', tags: ['Python', 'Pygame'], bg: '#B5EAD7', stars: 5 },
+  { emoji: '📊', title: '班級成績視覺化', author: '吳品儀', category: '資料視覺化', tags: ['Python', 'Matplotlib'], bg: '#C7B8EA', stars: 4 },
+  { emoji: '🏡', title: '個人作品集網站', author: '李思妤', category: '網頁設計', tags: ['HTML', 'CSS', 'JS'], bg: '#AED9E0', stars: 5 },
+  { emoji: '🎯', title: '射擊小遊戲', author: '劉承翰', category: '遊戲', tags: ['Unity', 'C#'], bg: '#FFF3B0', stars: 4 },
+  { emoji: '🌤️', title: '天氣 App 介面設計', author: '林小宇', category: 'App', tags: ['Figma', 'React'], bg: '#FFCBA4', stars: 5 },
+  { emoji: '📰', title: 'PTT 文章分析器', author: '張俊豪', category: 'Python', tags: ['Python', '爬蟲'], bg: '#FFB3C6', stars: 4 },
+  { emoji: '🗺️', title: '台北地圖探索', author: '黃芸萱', category: '資料視覺化', tags: ['D3.js', 'GeoJSON'], bg: '#B5EAD7', stars: 5 },
+  { emoji: '🎵', title: '音樂播放器', author: '陳曉薇', category: 'App', tags: ['React', 'Web Audio'], bg: '#C7B8EA', stars: 4 },
+];
+
+// Quiz data
+const questions = [
+  {
+    q: '你剛拿到一個全新的電動玩具，你會怎麼開始？',
+    opts: [
+      { emoji: '📖', text: '先把說明書從頭看到尾', type: 'T' },
+      { emoji: '▶️', text: '直接開機按看看！', type: 'P' },
+      { emoji: '🤔', text: '先思考它可能怎麼運作', type: 'C' },
+      { emoji: '👀', text: '先觀察別人怎麼玩', type: 'V' },
+    ]
+  },
+  {
+    q: '老師出了一道你不會的程式題，你通常怎麼做？',
+    opts: [
+      { emoji: '🔍', text: '查文件和教學，慢慢理解', type: 'T' },
+      { emoji: '⚡', text: '先試試看，錯了再改', type: 'P' },
+      { emoji: '💡', text: '先想清楚邏輯再動手', type: 'C' },
+      { emoji: '🎥', text: '找影片教學來看', type: 'V' },
+    ]
+  },
+  {
+    q: '最喜歡哪種類型的課程內容？',
+    opts: [
+      { emoji: '📚', text: '有完整文字說明和教材', type: 'T' },
+      { emoji: '🛠️', text: '邊學邊做的專案式學習', type: 'P' },
+      { emoji: '🧩', text: '深入講解原理和概念', type: 'C' },
+      { emoji: '📽️', text: '圖表豐富的影片教學', type: 'V' },
+    ]
+  },
+  {
+    q: '你理解新東西的最快方式是？',
+    opts: [
+      { emoji: '✍️', text: '做筆記、整理重點', type: 'T' },
+      { emoji: '🤸', text: '親手做一次就懂了', type: 'P' },
+      { emoji: '🌐', text: '連結到我已知的知識', type: 'C' },
+      { emoji: '🖼️', text: '看圖或流程圖', type: 'V' },
+    ]
+  },
+  {
+    q: '學 Python 時，你最享受哪個部分？',
+    opts: [
+      { emoji: '📝', text: '讀官方文件，了解每個指令', type: 'T' },
+      { emoji: '🏃', text: '馬上寫程式跑出結果', type: 'P' },
+      { emoji: '🔮', text: '思考程式背後的邏輯', type: 'C' },
+      { emoji: '🎨', text: '做出有畫面的東西', type: 'V' },
+    ]
+  },
+  {
+    q: '面對一個很複雜的專案，你通常怎麼開始？',
+    opts: [
+      { emoji: '📋', text: '列詳細的計畫和步驟', type: 'T' },
+      { emoji: '🚀', text: '先做一小部分感受一下', type: 'P' },
+      { emoji: '🗺️', text: '先把整個架構想清楚', type: 'C' },
+      { emoji: '✏️', text: '畫草稿或心智圖', type: 'V' },
+    ]
+  },
+  {
+    q: '你最喜歡哪種程式學習環境？',
+    opts: [
+      { emoji: '🤫', text: '安靜的地方，一個人專注讀', type: 'T' },
+      { emoji: '🙌', text: '和朋友一起做 Hackathon！', type: 'P' },
+      { emoji: '💬', text: '小組討論，互相問問題', type: 'C' },
+      { emoji: '🖥️', text: '看著螢幕示範跟著學', type: 'V' },
+    ]
+  },
+  {
+    q: '學完一個新技術，你怎麼確認自己真的學會了？',
+    opts: [
+      { emoji: '📄', text: '能把它清楚地解釋出來', type: 'T' },
+      { emoji: '🏆', text: '用它完成一個實際作品', type: 'P' },
+      { emoji: '🧐', text: '能找出它的限制和問題', type: 'C' },
+      { emoji: '🎬', text: '做一個示範影片給別人看', type: 'V' },
+    ]
+  },
+];
+
+const resultTypes = {
+  T: {
+    icon: '📚', title: '文字型學習者', subtitle: '系統化·深度閱讀·知識整理達人',
+    badge: '文字探險家', badgeBg: '#AED9E0', badgeColor: '#5BB8C5',
+    desc: '你喜歡透過閱讀和文字來理解事物！你有強大的系統化思考能力，善於整理和組織知識。建議你用完整的文件和教材學習，配合詳細的筆記，學習效果最好。',
+    tips: ['📝 建立自己的學習筆記系統（推薦 Notion）', '📖 閱讀官方文件和技術書籍', '✍️ 用自己的話重新整理重點', '📊 製作概念圖來連結知識'],
+    courses: ['Python 入門', '資料結構與演算法', 'Python 資料分析'],
+  },
+  P: {
+    icon: '🛠️', title: '實作型學習者', subtitle: '動手做·快速迭代·專案驅動',
+    badge: '實作冒險家', badgeBg: '#B5EAD7', badgeColor: '#4DC8A0',
+    desc: '你天生就是行動派！透過實際動手做，你能最快速地吸收知識。與其花時間看文件，不如直接開始做，從錯誤中學習反而讓你成長最快！',
+    tips: ['🚀 直接開始做小專案', '🐛 不怕出 Bug，從修錯中學習', '🏆 參加 Hackathon 或競賽', '🔁 快速原型，持續改善'],
+    courses: ['網頁設計：HTML/CSS/JS', 'Unity 遊戲開發', 'React 前端開發'],
+  },
+  C: {
+    icon: '🧠', title: '概念型學習者', subtitle: '深度思考·邏輯分析·原理派',
+    badge: '思考哲學家', badgeBg: '#C7B8EA', badgeColor: '#8B6FD4',
+    desc: '你喜歡從根本上理解事物的原理！你不滿足於「會用」，而是要「真的懂」。這種深度思考的方式讓你的知識更紮實，更容易舉一反三。',
+    tips: ['🔍 深入研究底層原理', '💡 多問「為什麼」', '🗣️ 透過教別人來深化理解', '📐 用演算法思考解決問題'],
+    courses: ['資料結構與演算法', 'AI 入門：機器學習概念', 'Python 資料分析'],
+  },
+  V: {
+    icon: '🎨', title: '視覺型學習者', subtitle: '圖像思考·視覺化·創意滿點',
+    badge: '視覺創作者', badgeBg: '#FFCBA4', badgeColor: '#FF8C5A',
+    desc: '你用圖像和視覺來理解世界！流程圖、心智圖、影片教學都是你的最佳學習工具。你的視覺化思考方式讓你特別擅長設計和創意方面的工作。',
+    tips: ['🎥 選擇圖文豐富的影片教學', '🗺️ 畫流程圖和心智圖', '🎨 把學到的東西做成視覺化作品', '👁️ 用 Figma 或繪圖軟體輔助理解'],
+    courses: ['UI/UX 設計思維', '網頁設計：HTML/CSS/JS', '遊戲開發'],
+  },
+};
+
+// ========================
+// PAGE NAVIGATION
+// ========================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  if (id === 'members' && !document.getElementById('membersGrid').children.length) renderMembers();
+  if (id === 'courses' && !document.getElementById('coursesGrid').children.length) renderCourses();
+  if (id === 'works' && !document.getElementById('worksGrid').children.length) renderWorks();
+}
+
+// ========================
+// RENDER MEMBERS
+// ========================
+function renderMembers() {
+  const grid = document.getElementById('membersGrid');
+  members.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.style.borderColor = m.roleColor;
+    card.innerHTML = `
+      <div class="member-avatar" style="background:${m.color}">
+        <span style="font-size:2.2rem">${m.emoji}</span>
+        <div style="position:absolute;inset:-5px;border-radius:50%;border:3px dashed ${m.roleColor};animation:spinSlow 8s linear infinite;"></div>
+      </div>
+      <div class="member-name">${m.name}</div>
+      <span class="member-role" style="background:${m.color};color:${m.roleColor}">${m.role}</span>
+      <p class="member-bio">${m.bio}</p>
+      <div class="member-skills">
+        ${m.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ========================
+// RENDER COURSES
+// ========================
+function renderCourses() {
+  const grid = document.getElementById('coursesGrid');
+  courses.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'course-card';
+    card.style.borderColor = c.levelText;
+    card.innerHTML = `
+      <div class="course-cover" style="background:${c.bg}">
+        <span style="font-size:3.5rem">${c.emoji}</span>
+      </div>
+      <div class="course-body">
+        <span class="course-level" style="background:${c.levelColor};color:${c.levelText}">${c.level}</span>
+        <div class="course-title">${c.title}</div>
+        <div class="course-desc">${c.desc}</div>
+        <div class="course-meta">
+          <span>📅 ${c.weeks}</span>
+          <span>🎯 ${c.sessions}</span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ========================
+// RENDER WORKS
+// ========================
+let activeCategory = '全部';
+function renderWorks() {
+  const filterDiv = document.getElementById('worksFilter');
+  workCategories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => { activeCategory = cat; filterWorks(); document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); };
+    filterDiv.appendChild(btn);
+  });
+  filterWorks();
+}
+
+function filterWorks() {
+  const grid = document.getElementById('worksGrid');
+  grid.innerHTML = '';
+  const filtered = activeCategory === '全部' ? works : works.filter(w => w.category === activeCategory);
+  filtered.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'work-card';
+    card.style.borderColor = '#ddd';
+    card.innerHTML = `
+      <div class="work-preview" style="background:${w.bg}">
+        <span style="font-size:3rem">${w.emoji}</span>
+        <span class="work-pixel">✨</span>
+      </div>
+      <div class="work-info">
+        <span class="work-tag" style="background:${w.bg};color:#666">${w.category}</span>
+        <div class="work-title">${w.title}</div>
+        <div class="work-author">by ${w.author}</div>
+        <div class="work-stars">${'⭐'.repeat(w.stars)}</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          ${w.tags.map(t => `<span class="skill-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ========================
+// QUIZ GAME
+// ========================
+let quizAnswers = [];
+let currentQ = 0;
+
+function startQuiz() {
+  document.getElementById('quizStart').style.display = 'none';
+  quizAnswers = [];
+  currentQ = 0;
+  renderQuestion(0);
+}
+
+function renderQuestion(idx) {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  const q = questions[idx];
+  const card = document.createElement('div');
+  card.className = 'quiz-card active';
+  const pct = Math.round((idx / questions.length) * 100);
+  card.innerHTML = `
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-fill" style="width:${pct}%"></div>
+    </div>
+    <div class="quiz-q-num">第 ${idx + 1} 題，共 ${questions.length} 題</div>
+    <div class="quiz-q-text">${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o, i) => `
+        <button class="quiz-option" onclick="selectOption(this, '${o.type}')">
+          <span class="opt-emoji">${o.emoji}</span>
+          <span>${o.text}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  area.appendChild(card);
+}
+
+function selectOption(btn, type) {
+  btn.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  quizAnswers.push(type);
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < questions.length) {
+      renderQuestion(currentQ);
+    } else {
+      showResult();
+    }
+  }, 400);
+}
+
+function showResult() {
+  document.getElementById('quizArea').innerHTML = '';
+  const counts = { T: 0, P: 0, C: 0, V: 0 };
+  quizAnswers.forEach(a => counts[a]++);
+  const type = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+  const r = resultTypes[type];
+
+  const card = document.getElementById('resultCard');
+  card.innerHTML = `
+    <div class="result-type-icon">${r.icon}</div>
+    <span class="result-badge" style="background:${r.badgeBg};color:${r.badgeColor};border-color:${r.badgeColor}">✦ ${r.badge} ✦</span>
+    <h3 class="result-title">${r.title}</h3>
+    <div class="result-subtitle">${r.subtitle}</div>
+    <p class="result-desc">${r.desc}</p>
+    <div class="result-tips">
+      <h4>🌟 你的學習秘訣：</h4>
+      <ul>${r.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>
+    <div style="margin-bottom:1rem;font-weight:800;color:var(--dark)">📚 推薦課程：</div>
+    <div class="result-courses">
+      ${r.courses.map(c => `<span class="result-course-tag">${c}</span>`).join('')}
+    </div>
+    <button class="btn-primary" onclick="resetQuiz()" style="margin-right:1rem">🔄 重新測驗</button>
+    <button class="btn-secondary" onclick="showPage('courses')">看全部課程 →</button>
+  `;
+  card.classList.add('active');
+}
+
+function resetQuiz() {
+  document.getElementById('resultCard').classList.remove('active');
+  document.getElementById('resultCard').innerHTML = '';
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('quizStart').style.display = 'block';
+  quizAnswers = [];
+  currentQ = 0;
+}
+
+// ========================
+// FLOATING PIXEL CREATURES
+// ========================
+const creatureEmojis = ['🌸', '⭐', '💫', '🌿', '🍬', '🎀', '🧸', '🔮', '🍭', '🌙', '☁️', '🎈', '🌺', '💎', '🍡', '🌟', '🎋', '🌼'];
+function spawnCreatures() {
+  const layer = document.getElementById('creaturesLayer');
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'pixel-creature';
+    el.textContent = creatureEmojis[Math.floor(Math.random() * creatureEmojis.length)];
+    el.style.left = Math.random() * 98 + '%';
+    el.style.top = Math.random() * 95 + '%';
+    el.style.fontSize = (Math.random() * 14 + 12) + 'px';
+    const dur = Math.random() * 5 + 4;
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay = -Math.random() * dur + 's';
+    layer.appendChild(el);
+  }
+}
+spawnCreatures();
+</script>
+</body>
+</html>
